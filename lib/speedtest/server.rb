@@ -17,17 +17,38 @@ module Speedtest
       Math.sqrt((localization.longitude - origin.longitude) ** 2 + (localization.latitude - origin.latitude) ** 2)
     end
 
+    def ping
+      times = []
+
+      6.times do
+        start = Time.now
+        msec = (start.to_f * 1000).to_i
+
+        begin
+          uri = URI.parse("#{url}/speedtest/latency.txt?x=#{msec}")
+          Net::HTTP.get_response(uri)
+          times << Time.now - start
+        rescue Timeout::Error
+          times << 999999
+        end
+      end
+
+      times.sort[1,4].inject(:+) * 1000 / 4
+    end
+
     def self.all
       uri = URI.parse(URL_FOR_ALL_SERVERS)
       request = Net::HTTP.get_response(uri)
 
+      collection = ServerCollection.new
       request.body.scan(REGEX_FOR_PARSE).map do |server|
-        new(
+        collection << new(
           url: server[0].split(/(http:\/\/.*)\/speedtest.*/)[1],
           latitude: server[1].to_f,
           longitude: server[2].to_f
         )
       end
+      collection
     end
   end
 end

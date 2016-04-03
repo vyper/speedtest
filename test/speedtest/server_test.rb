@@ -12,8 +12,13 @@ describe Speedtest::Server do
   end
 
   describe '.all' do
-    it 'returns instance of Server' do
-      assert_instance_of Speedtest::Server, servers.first
+    it 'returns an instance of ServerCollection' do
+      assert_instance_of Speedtest::ServerCollection, servers
+    end
+
+    it 'items are Server instance' do
+      assert_instance_of Speedtest::Server, servers[0]
+      assert_instance_of Speedtest::Server, servers[1]
     end
 
     it 'returns list of servers' do
@@ -41,4 +46,6 @@ describe Speedtest::Server do
   it '#distance_from' do
     servers[0].distance_from(servers[1].localization).must_equal 6.440473415052654
   end
+
+  it '#ping'
 end
